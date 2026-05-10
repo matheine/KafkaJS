@@ -1,0 +1,19 @@
+{
+  "name": "kafkajs",
+  "version": "0.0.1",
+  "description": "A minimal, framework-free block editor in Vanilla JavaScript.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "python3 -m http.server 8080"
+  },
+  "keywords": [
+    "editor",
+    "block-editor",
+    "wysiwyg",
+    "vanilla-js",
+    "web-component",
+    "headless"
+  ],
+  "license": "MIT"
+}

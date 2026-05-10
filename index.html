@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KafkaJS — Demo</title>
+  <link rel="stylesheet" href="src/styles/editor.css">
+  <style>
+    main {
+      max-width: 44rem;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+    h1.demo-title {
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin: 0 0 2rem;
+      font-size: 2rem;
+    }
+    pre.demo-output {
+      margin-top: 3rem;
+      padding: 1rem;
+      background: #fafafa;
+      border: 1px solid var(--kafka-border);
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      font-family: var(--kafka-font-mono);
+    }
+    .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--kafka-muted);
+      margin-bottom: 0.5rem;
+      font-family: var(--kafka-font-sans);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="demo-title">KafkaJS</h1>
+
+    <div class="label">Editor</div>
+    <kafka-editor></kafka-editor>
+
+    <div class="label" style="margin-top: 2rem;">JSON output</div>
+    <pre class="demo-output" id="output"></pre>
+  </main>
+
+  <script type="module">
+    import './src/index.js';
+
+    const editor = document.querySelector('kafka-editor');
+    const output = document.getElementById('output');
+
+    editor.setContent([
+      { type: 'heading', data: { level: 1, text: 'A minimal block editor' } },
+      { type: 'paragraph', data: { text: 'KafkaJS is built with vanilla JavaScript and outputs strict JSON.' } },
+      { type: 'heading', data: { level: 3, text: 'Try it out' } },
+      { type: 'paragraph', data: { text: 'Click into a block to reveal the toolbar above it. Use the type dropdown to switch between Text, Heading, Image, or Code.' } },
+      { type: 'code', data: { code: 'const x = 42;\nconsole.log(x);' } },
+      { type: 'paragraph', data: { text: '' } },
+    ]);
+
+    const refresh = () => {
+      output.textContent = JSON.stringify(editor.toJSON(), null, 2);
+    };
+    refresh();
+    editor.addEventListener('change', refresh);
+  </script>
+</body>
+</html>
