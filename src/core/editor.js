@@ -1,12 +1,15 @@
 import { EditorState } from './state.js';
 import { getBlock, listBlocks } from './registry.js';
-import { setCaret, getCaretOffset } from './caret.js';
+import { setCaret, getCaretOffset, getSelectionOffsets } from './caret.js';
 import {
   isRichTextValue,
   richTextLength,
   richTextToString,
   concatRichText,
+  getRichText,
+  sliceRichText,
 } from './richtext.js';
+import { parseClipboard } from './paste.js';
 
 const EDITABLE_SELECTOR =
   '[contenteditable="true"], [contenteditable="plaintext-only"], input, textarea, [data-kafka-focusable="true"]';
@@ -48,6 +51,7 @@ export class KafkaEditor extends HTMLElement {
     this.#parentEditor = this.#findParentEditor();
     if (!this.#parentEditor) this.#mountSelectionToolbar();
     this.#state.subscribe((event) => this.#onStateChange(event));
+    this.#root.addEventListener('paste', (e) => this.#onPaste(e));
     this.#root.addEventListener('focusin', (e) => {
       const wrapper = this.#findOwnBlock(e.target);
       if (wrapper) this.#setFocusedBlock(wrapper.dataset.blockId);
@@ -680,6 +684,92 @@ export class KafkaEditor extends HTMLElement {
     this.#pendingFocus = { id: newId, offset: 0 };
     this.#applyPendingFocus();
     return newId;
+  }
+
+  #onPaste(e) {
+    const target = e.target;
+    if (!target || !this.#root.contains(target)) return;
+    // Native paste in inputs (image URL, class editor).
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+
+    const wrapper = this.#findOwnBlock(target);
+    if (!wrapper) return;
+    const blockId = wrapper.dataset.blockId;
+    const currentBlock = this.#state.blocks.find((b) => b.id === blockId);
+    if (!currentBlock) return;
+
+    const editable = target.isContentEditable ? target : null;
+    const isTextHost = editable && isRichTextValue(currentBlock.data.text);
+
+    // Non-rich-text editables (e.g. image caption) — let the browser paste natively.
+    if (editable && !isTextHost) return;
+
+    const blocks = parseClipboard(e.clipboardData);
+    if (blocks.length === 0) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Inline-insert: a single pasted paragraph merged into the current text-bearing block.
+    if (isTextHost && blocks.length === 1 && blocks[0].type === 'paragraph') {
+      this.#inlineInsert(currentBlock, editable, blocks[0].data.text);
+      return;
+    }
+
+    this.#blockInsert(currentBlock, editable, isTextHost, blocks);
+  }
+
+  #inlineInsert(block, editable, pastedText) {
+    const { start, end } = getSelectionOffsets(editable);
+    const text = getRichText(editable);
+    const before = sliceRichText(text, 0, start);
+    const after = sliceRichText(text, end, Infinity);
+    const merged = concatRichText(concatRichText(before, pastedText), after);
+
+    this.#state.updateBlock(block.id, { text: merged });
+    this.#refreshBlock(block.id);
+
+    const caretPos = richTextLength(before) + richTextLength(pastedText);
+    const newWrapper = this.#blockEls.get(block.id);
+    if (!newWrapper) return;
+    const newEditable = newWrapper.querySelector(EDITABLE_SELECTOR);
+    if (newEditable && newEditable.isContentEditable) {
+      newEditable.focus();
+      setCaret(newEditable, caretPos);
+    }
+  }
+
+  #blockInsert(block, editable, isTextHost, pastedBlocks) {
+    let beforeText = null;
+    let afterText = null;
+    if (isTextHost) {
+      const { start, end } = getSelectionOffsets(editable);
+      const text = getRichText(editable);
+      beforeText = sliceRichText(text, 0, start);
+      afterText = sliceRichText(text, end, Infinity);
+    }
+
+    let lastId = block.id;
+    let focusOffset = Number.MAX_SAFE_INTEGER;
+
+    this.#state.batch(() => {
+      if (beforeText !== null) {
+        this.#state.updateBlock(block.id, { text: beforeText });
+      }
+      for (const b of pastedBlocks) {
+        lastId = this.#state.insertBlock(b, lastId);
+      }
+      if (afterText !== null && richTextLength(afterText) > 0) {
+        lastId = this.#state.insertBlock(
+          { type: 'paragraph', data: { text: afterText } },
+          lastId,
+        );
+        focusOffset = 0;
+      }
+    });
+
+    this.#pendingFocus = { id: lastId, offset: focusOffset };
+    this.#applyPendingFocus();
   }
 
   #mergeWithPrevious(block, appendText) {
