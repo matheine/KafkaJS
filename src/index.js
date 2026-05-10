@@ -8,6 +8,8 @@ import { CodeBlock } from './blocks/code.js';
 import { QuoteBlock } from './blocks/quote.js';
 import { ListBlock } from './blocks/list.js';
 import { ColumnsBlock } from './blocks/columns.js';
+import { DividerBlock } from './blocks/divider.js';
+import { SpacerBlock } from './blocks/spacer.js';
 
 registerBlock(ParagraphBlock);
 registerBlock(HeadingBlock);
@@ -16,6 +18,8 @@ registerBlock(CodeBlock);
 registerBlock(QuoteBlock);
 registerBlock(ListBlock);
 registerBlock(ColumnsBlock);
+registerBlock(DividerBlock);
+registerBlock(SpacerBlock);
 
 export const Kafka = {
   registerBlock,
@@ -33,4 +37,6 @@ export {
   QuoteBlock,
   ListBlock,
   ColumnsBlock,
+  DividerBlock,
+  SpacerBlock,
 };

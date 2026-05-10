@@ -9,7 +9,7 @@ import {
 } from './richtext.js';
 
 const EDITABLE_SELECTOR =
-  '[contenteditable="true"], [contenteditable="plaintext-only"], input, textarea';
+  '[contenteditable="true"], [contenteditable="plaintext-only"], input, textarea, [data-kafka-focusable="true"]';
 
 const DEFAULT_COLOR_PRESETS = [
   { name: 'Default', value: null },
@@ -64,6 +64,21 @@ export class KafkaEditor extends HTMLElement {
       (e) => {
         if (e.isComposing) return;
 
+        // Undo / Redo
+        if ((e.metaKey || e.ctrlKey) && (e.key === 'z' || e.key === 'Z')) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.shiftKey) this.#state.redo();
+          else this.#state.undo();
+          return;
+        }
+        if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || e.key === 'Y') && !e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.#state.redo();
+          return;
+        }
+
         if (e.key === 'Escape') {
           if (this.#closeMenu) return; // popup handles its own Escape
           const active = document.activeElement;
@@ -101,13 +116,18 @@ export class KafkaEditor extends HTMLElement {
         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
           if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
           const active = document.activeElement;
-          if (!active || !active.isContentEditable) return;
+          if (!active) return;
+          const isEditable = active.isContentEditable;
+          const isFocusable = active.dataset?.kafkaFocusable === 'true';
+          if (!isEditable && !isFocusable) return;
           const wrapper = this.#findOwnBlock(active);
           if (!wrapper) return;
           const blocks = this.#state.blocks;
           const idx = blocks.findIndex((b) => b.id === wrapper.dataset.blockId);
           if (idx === -1) return;
-          if (e.key === 'ArrowUp' && idx > 0 && this.#caretOnFirstLine(active)) {
+          const onFirst = isEditable ? this.#caretOnFirstLine(active) : true;
+          const onLast = isEditable ? this.#caretOnLastLine(active) : true;
+          if (e.key === 'ArrowUp' && idx > 0 && onFirst) {
             e.preventDefault();
             e.stopPropagation();
             this.#pendingFocus = { id: blocks[idx - 1].id, offset: Number.MAX_SAFE_INTEGER };
@@ -115,7 +135,7 @@ export class KafkaEditor extends HTMLElement {
           } else if (
             e.key === 'ArrowDown' &&
             idx < blocks.length - 1 &&
-            this.#caretOnLastLine(active)
+            onLast
           ) {
             e.preventDefault();
             e.stopPropagation();
@@ -141,8 +161,27 @@ export class KafkaEditor extends HTMLElement {
     return this.#state;
   }
 
+  undo() {
+    return this.#state.undo();
+  }
+
+  redo() {
+    return this.#state.redo();
+  }
+
+  get canUndo() {
+    return this.#state.canUndo();
+  }
+
+  get canRedo() {
+    return this.#state.canRedo();
+  }
+
   #onStateChange(event) {
-    if (event.type !== 'update') {
+    if (event.type === 'update' && event.replace) {
+      this.#refreshBlock(event.id);
+      this.#applyPendingFocus();
+    } else if (event.type !== 'update') {
       this.#renderAll();
       this.#applyPendingFocus();
     }

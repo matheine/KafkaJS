@@ -56,6 +56,8 @@ npm run dev
 | `code`      | `{ code, language?, showCopy? }`                  | Monospace, optional copy button.               |
 | `image`     | `{ src, alt?, caption? }`                         | File upload, drag-drop, or URL paste.          |
 | `columns`   | `{ columns: [[block, …], [block, …]] }`           | 2 or 3 nested editors side by side.            |
+| `divider`   | `{}`                                              | Horizontal rule. Backspace deletes.            |
+| `spacer`    | `{ size: 'small' \| 'medium' \| 'large' }`        | Vertical whitespace; size picker in toolbar.   |
 
 `text` is either a string or an array of runs: `[{ text, bold?, italic?, underline?, link?, color? }, …]`.
 
@@ -70,6 +72,7 @@ npm run dev
 - **Esc** — leave editing entirely (blurs)
 - **↑ / ↓** — move between blocks when caret is on the first/last line
 - **Cmd/Ctrl + B / I / U** — bold, italic, underline on selected text
+- **Cmd/Ctrl + Z** — undo · **Cmd/Ctrl + Shift + Z** or **Ctrl + Y** — redo
 
 ### Mouse
 

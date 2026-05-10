@@ -594,6 +594,46 @@ html, body {
   height: 100%;
 }
 
+/* Divider */
+.kafka-divider {
+  outline: none;
+  padding: 0.6rem 0;
+  cursor: pointer;
+}
+.kafka-divider-line {
+  border: 0;
+  border-top: 1px solid var(--kafka-border);
+  margin: 0;
+  transition: border-color 100ms;
+}
+.kafka-divider:focus .kafka-divider-line {
+  border-top-color: var(--kafka-fg);
+}
+
+/* Spacer */
+.kafka-spacer {
+  outline: none;
+  cursor: pointer;
+  transition: background 100ms, outline-color 100ms;
+  border-radius: 2px;
+}
+.kafka-spacer-small { height: 1rem; }
+.kafka-spacer-medium { height: 2.5rem; }
+.kafka-spacer-large { height: 5rem; }
+.kafka-spacer:hover {
+  background: var(--kafka-subtle);
+}
+.kafka-spacer:focus {
+  background: var(--kafka-subtle);
+  outline: 1px dashed var(--kafka-fg);
+  outline-offset: -1px;
+}
+.kafka-spacer-toolbar {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
 /* Code */
 .kafka-code {
   position: relative;
