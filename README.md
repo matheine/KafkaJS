@@ -58,6 +58,8 @@ npm run dev
 | `columns`   | `{ columns: [[block, …], [block, …]] }`           | 2 or 3 nested editors side by side.            |
 | `divider`   | `{}`                                              | Horizontal rule. Backspace deletes.            |
 | `spacer`    | `{ size: 'small' \| 'medium' \| 'large' }`        | Vertical whitespace; size picker in toolbar.   |
+| `embed`     | `{ url, provider? }`                              | YouTube / Vimeo iframe; URL paste in toolbar.  |
+| `table`     | `{ rows: [[cell, …], …] }`                        | Tab/Shift+Tab navigates; toolbar adds row/col. |
 
 `text` is either a string or an array of runs: `[{ text, bold?, italic?, underline?, link?, color? }, …]`.
 

@@ -135,6 +135,21 @@ function walkBlocks(root) {
       return;
     }
 
+    if (tag === 'TABLE') {
+      flushInline();
+      const rows = [];
+      for (const tr of node.querySelectorAll(':scope > tbody > tr, :scope > thead > tr, :scope > tr')) {
+        const row = [];
+        for (const cell of tr.children) {
+          if (cell.nodeName !== 'TD' && cell.nodeName !== 'TH') continue;
+          row.push((cell.textContent ?? '').trim());
+        }
+        if (row.length > 0) rows.push(row);
+      }
+      if (rows.length > 0) blocks.push({ type: 'table', data: { rows } });
+      return;
+    }
+
     if (tag === 'BR') {
       flushInline();
       return;

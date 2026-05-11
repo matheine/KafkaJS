@@ -634,6 +634,92 @@ html, body {
   height: 100%;
 }
 
+/* Embed */
+.kafka-embed {
+  margin: 0.5rem 0;
+  padding: 0;
+}
+.kafka-embed-frame {
+  width: 100%;
+  background: #000;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.kafka-embed-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.kafka-embed-form {
+  display: flex;
+  padding: 1.25rem;
+  border: 1px dashed var(--kafka-border);
+  background: var(--kafka-subtle);
+  border-radius: 4px;
+}
+.kafka-embed-input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-family: var(--kafka-font-sans);
+  font-size: 0.9rem;
+  color: var(--kafka-fg);
+}
+.kafka-embed-input::placeholder {
+  color: var(--kafka-muted);
+}
+.kafka-embed-fallback {
+  padding: 1rem;
+  border: 1px solid var(--kafka-border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: var(--kafka-font-sans);
+  font-size: 0.85rem;
+  background: var(--kafka-subtle);
+}
+.kafka-embed-fallback a {
+  color: var(--kafka-fg);
+  word-break: break-all;
+}
+.kafka-embed-fallback-note {
+  color: var(--kafka-muted);
+  font-size: 0.75rem;
+}
+
+/* Table */
+.kafka-table-wrap {
+  margin: 0.5rem 0;
+  overflow-x: auto;
+}
+.kafka-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--kafka-font-sans);
+  font-size: 0.9rem;
+  table-layout: fixed;
+}
+.kafka-table td {
+  border: 1px solid var(--kafka-border);
+  padding: 0.5rem 0.65rem;
+  vertical-align: top;
+  outline: none;
+  min-width: 4rem;
+  word-break: break-word;
+}
+.kafka-table td:focus {
+  background: var(--kafka-subtle);
+  box-shadow: inset 0 0 0 1px var(--kafka-fg);
+}
+.kafka-table-toolbar {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
 /* Code */
 .kafka-code {
   position: relative;

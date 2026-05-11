@@ -385,6 +385,7 @@ export class KafkaEditor extends HTMLElement {
 
   #blockContext(block) {
     return {
+      id: block.id,
       onUpdate: (data) => this.#state.updateBlock(block.id, data),
       split: (beforeData, afterBlock) => this.#splitBlock(block, beforeData, afterBlock),
       mergeWithPrevious: (text) => this.#mergeWithPrevious(block, text),
